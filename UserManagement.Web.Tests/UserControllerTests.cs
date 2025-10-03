@@ -1,4 +1,5 @@
 using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Web.Models.Users;
@@ -22,69 +23,84 @@ public class UserControllerTests
 
         // Assert: Verifies that the action of the method under test behaves as expected.
         result.Model
-            .Should().BeOfType<UserListViewModel>()
-            .Which.Items.Should().BeEquivalentTo(users, opts => opts.ExcludingMissingMembers());
+            .Should().BeOfType<UserPageViewModel>()
+            .Which.Users.Should().BeEquivalentTo(users, opts => opts.ExcludingMissingMembers());
     }
 
     [Fact]
-    public void List_WhenFilteringActiveUsers_ShouldReturnOnlyActive()
+    public void Create_Post_ValidModel_CallsAddAndRedirects()
     {
         // Arrange
         var controller = CreateController();
-        var activeUser = SetupUsers(forename: "Alice", isActive: true).First();
-        var inactiveUser = SetupUsers(forename: "Bob", isActive: false).First();
+        var newUserVm = new UserCreateViewModel
+        {
+            Forename = "Alice",
+            Surname = "Smith",
+            DateOfBirth = "2000-01-26",
+            Email = "alice@example.com",
+            IsActive = true
+        };
 
-        _userService.Setup(s => s.FilterByActive(true))
-            .Returns([activeUser]);
+        var model = new UserPageViewModel
+        {
+            NewUser = newUserVm
+        };
 
         // Act
-        var result = controller.List(isActive: true);
+        var result = controller.Create(model);
 
         // Assert
-        var model = result.Model as UserListViewModel;
-        model.Should().NotBeNull();
-        model!.Items.Should().ContainSingle(u => u.Forename == "Alice");
-        model.Items.Should().NotContain(u => u.Forename == "Bob");
+        _userService.Verify(s => s.Add(It.Is<User>(u =>
+            u.Forename == "Alice" &&
+            u.Surname == "Smith" &&
+            u.DateOfBirth == "26/01/2000" &&
+            u.Email == "alice@example.com" &&
+            u.IsActive == true
+        )), Times.Once);
+
+        result.Should().BeOfType<RedirectToActionResult>()
+            .Which.ActionName.Should().Be("List");
     }
 
     [Fact]
-    public void List_WhenFilteringInactiveUsers_ShouldReturnOnlyInactive()
+    public void Create_Post_InvalidModel_ReturnsListViewWithModel()
     {
         // Arrange
         var controller = CreateController();
-        var activeUser = SetupUsers(forename: "Charlie", isActive: true).First();
-        var inactiveUser = SetupUsers(forename: "Dana", isActive: false).First();
+        controller.ModelState.AddModelError("Forename", "Required");
 
-        _userService.Setup(s => s.FilterByActive(false))
-            .Returns([inactiveUser]);
+        var newUserVm = new UserCreateViewModel
+        {
+            Forename = "",
+            Surname = "Smith",
+            DateOfBirth = "2000-01-26",
+            Email = "alice@example.com",
+            IsActive = true
+        };
 
-        // Act
-        var result = controller.List(isActive: false);
+        var model = new UserPageViewModel
+        {
+            NewUser = newUserVm
+        };
 
-        // Assert
-        var model = result.Model as UserListViewModel;
-        model.Should().NotBeNull();
-        model!.Items.Should().ContainSingle(u => u.Forename == "Dana");
-        model.Items.Should().NotContain(u => u.Forename == "Charlie");
-    }
-
-    [Fact]
-    public void List_WhenFilterResultsInNoUsers_ShouldReturnEmptyList()
-    {
-        // Arrange
-        var controller = CreateController();
-        _userService.Setup(s => s.FilterByActive(false))
-            .Returns(Enumerable.Empty<User>());
+        var existingUsers = SetupUsers();
+        _userService.Setup(s => s.GetAll()).Returns(existingUsers);
 
         // Act
-        var result = controller.List(isActive: false);
+        var result = controller.Create(model);
 
         // Assert
-        var model = result.Model as UserListViewModel;
-        model.Should().NotBeNull();
-        model!.Items.Should().BeEmpty();
-    }
+        _userService.Verify(s => s.Add(It.IsAny<User>()), Times.Never);
 
+        var viewResult = result as ViewResult;
+        viewResult.Should().NotBeNull();
+        viewResult.ViewName.Should().Be("List");
+
+        var returnedModel = viewResult.Model as UserPageViewModel;
+        returnedModel.Should().NotBeNull();
+        returnedModel.NewUser.Should().BeEquivalentTo(newUserVm);
+        returnedModel.Users.Should().BeEquivalentTo(existingUsers, opts => opts.ExcludingMissingMembers());
+    }
     private User[] SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)
     {
         var users = new[]

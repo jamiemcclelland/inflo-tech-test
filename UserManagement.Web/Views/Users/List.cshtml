@@ -1,4 +1,4 @@
-﻿@model UserManagement.Web.Models.Users.UserListViewModel
+﻿@model UserPageViewModel
 
 <h2>User List</h2>
 
@@ -16,26 +16,26 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Items)
+            @foreach (var user in Model.Users)
             {
                 <tr>
                     <td>
-                        @item.Id
+                        @user.Id
                     </td>
                     <td>
-                        @item.Forename
+                        @user.Forename
                     </td>
                     <td>
-                        @item.Surname
+                        @user.Surname
                     </td>
                     <td>
-                        @item.DateOfBirth
+                        @user.DateOfBirth
                     </td>
                     <td>
-                        @item.Email
+                        @user.Email
                     </td>
                     <td>
-                        @(item.IsActive ? "Yes" : "No")
+                        @(user.IsActive ? "Yes" : "No")
                     </td>
                     <td>
                         <div class="dropdown">
@@ -62,8 +62,84 @@
         <a asp-controller="Users" asp-action="List" asp-route-isActive="false" class="btn btn-default">Non Active</a>
     </div>
 
-    <a href="#" class="btn btn-primary float-end">
+    <a href="#" data-bs-toggle="offcanvas" data-bs-target="#addUserSidebar" class="btn btn-primary float-end">
         Add User
     </a>
 </div>
 
+@* <!-- Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="filterModalLabel">Confirm Filter</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Do you want to filter the list to only show active users?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a id="confirmFilterBtn" class="btn btn-success">Yes, show active</a>
+      </div>
+    </div>
+  </div>
+</div> *@
+
+<!-- Sidebar form -->
+<div class="offcanvas offcanvas-end" id="addUserSidebar" tabindex="-1">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Add New User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="addUserForm" asp-controller="Users" asp-action="Create" method="post">
+            <div class="mb-3">
+                <label asp-for="NewUser.Forename" class="form-label"></label>
+                <input asp-for="NewUser.Forename" class="form-control" />
+                <span asp-validation-for="NewUser.Forename" class="text-danger d-none"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NewUser.Surname" class="form-label"></label>
+                <input asp-for="NewUser.Surname" class="form-control" />
+                <span asp-validation-for="NewUser.Surname" class="text-danger d-none"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NewUser.DateOfBirth" class="form-label">Date of Birth</label>
+                <input asp-for="NewUser.DateOfBirth" class="form-control" />
+                <span asp-validation-for="NewUser.DateOfBirth" class="text-danger d-none"></span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="NewUser.Email" class="form-label">Email Address</label>
+                <input asp-for="NewUser.Email" class="form-control" />
+                <span asp-validation-for="NewUser.Email" class="text-danger d-none"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="NewUser.IsActive" class="form-check-input" />
+                <label asp-for="NewUser.IsActive" class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-success" id="saveButton">Save</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            var form = $("#addUserForm");
+
+            form.on("submit", function (e) {
+                if (!form.valid()) {
+                    e.preventDefault();
+                    form.find("span.field-validation-error").removeClass("d-none");
+                } else {}
+            });
+        });
+    </script>
+}

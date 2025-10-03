@@ -1,14 +1,18 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace UserManagement.Web.Models.Users;
 
 public class UserCreateViewModel
 {
-    public List<UserCreateItemViewModel> Items { get; set; } = new();
-}
-
-public class UserCreateItemViewModel
-{
-    public string? Forename { get; set; }
-    public string? Surname { get; set; }
-    public string? DateOfBirth { get; set; }
-    public string? Email { get; set; }
+    [Required]
+    public string Forename { get; set; } = null!;
+    [Required]
+    public string Surname { get; set; } = null!;
+    [Required]
+    [DataType(DataType.Date, ErrorMessage = "Please enter a valid date")]
+    public string DateOfBirth { get; set; } = null!;
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = null!;
+    public bool IsActive { get; set; }
 }

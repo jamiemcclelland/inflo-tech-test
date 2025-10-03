@@ -62,6 +62,68 @@ public class UserServiceTests
               .Which.Forename.Should().Be("InactiveUser");
     }
 
+    [Fact]
+    public void Add_WhenUserHasNoId_AssignsNextIdAndCallsCreate()
+    {
+        // Arrange
+        var service = CreateService();
+        var existingUsers = new[]
+        {
+            new User { Id = 1, Forename = "ExistingUser", IsActive = true }
+        }.AsQueryable();
+
+        _dataContext.Setup(s => s.GetAll<User>()).Returns(existingUsers);
+
+        var newUser = new User { Forename = "NewUser", IsActive = true, Id = 0 };
+
+        // Act
+        service.Add(newUser);
+
+        // Assert
+        newUser.Id.Should().Be(2);
+        _dataContext.Verify(d => d.Create(newUser), Times.Once);
+    }
+
+    [Fact]
+    public void Add_WhenNoExistingUsers_AssignsIdOneAndCallsCreate()
+    {
+        // Arrange
+        var service = CreateService();
+        var emptyUsers = Enumerable.Empty<User>().AsQueryable();
+        _dataContext.Setup(s => s.GetAll<User>()).Returns(emptyUsers);
+
+        var newUser = new User { Forename = "FirstUser", IsActive = true, Id = 0 };
+
+        // Act
+        service.Add(newUser);
+
+        // Assert
+        newUser.Id.Should().Be(1);
+        _dataContext.Verify(d => d.Create(newUser), Times.Once);
+    }
+
+    [Fact]
+    public void Add_WhenUserHasExistingId_UsesProvidedIdAndCallsCreate()
+    {
+        // Arrange
+        var service = CreateService();
+        var existingUsers = new[]
+        {
+            new User { Id = 1, Forename = "ExistingUser", IsActive = true }
+        }.AsQueryable();
+
+        _dataContext.Setup(s => s.GetAll<User>()).Returns(existingUsers);
+
+        var newUser = new User { Id = 99, Forename = "PreAssignedIdUser", IsActive = true };
+
+        // Act
+        service.Add(newUser);
+
+        // Assert
+        newUser.Id.Should().Be(99);
+        _dataContext.Verify(d => d.Create(newUser), Times.Once);
+    }
+
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)
     {
         var users = new[]
