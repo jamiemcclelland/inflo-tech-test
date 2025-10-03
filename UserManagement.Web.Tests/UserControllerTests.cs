@@ -80,7 +80,7 @@ public class UserControllerTests
         model!.Items.Should().BeEmpty();
     }
 
-    private User[] SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
+    private User[] SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)
     {
         var users = new[]
         {
@@ -88,6 +88,7 @@ public class UserControllerTests
             {
                 Forename = forename,
                 Surname = surname,
+                DateOfBirth = dateOfBirth,
                 Email = email,
                 IsActive = isActive
             }
