@@ -11,9 +11,16 @@ public class UsersController : Controller
     public UsersController(IUserService userService) => _userService = userService;
 
     [HttpGet]
-    public ViewResult List()
+    public ViewResult List(bool? isActive = null)
     {
-        var items = _userService.GetAll().Select(p => new UserListItemViewModel
+        var query = _userService.GetAll().AsQueryable();
+
+        if (isActive.HasValue)
+        {
+            query = query.Where(p => p.IsActive == isActive.Value);
+        }
+
+        var items = query.Select(p => new UserListItemViewModel
         {
             Id = p.Id,
             Forename = p.Forename,
