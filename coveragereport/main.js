@@ -221,7 +221,7 @@ var assemblies = [
     "name": "UserManagement.Services",
     "classes": [
       { "name": "Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions", "rp": "UserManagement.Services_ServiceCollectionExtensions.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 10, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "UserManagement.Services.Domain.Implementations.UserService", "rp": "UserManagement.Services_UserService.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 25, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "UserManagement.Services.Domain.Implementations.UserService", "rp": "UserManagement.Services_UserService.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 26, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "UserManagement.Web",
@@ -233,7 +233,7 @@ var assemblies = [
       { "name": "UserManagement.Web.Models.Users.UserListItemViewModel", "rp": "UserManagement.Web_UserListItemViewModel.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "UserManagement.Web.Models.Users.UserListViewModel", "rp": "UserManagement.Web_UserListViewModel.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "UserManagement.WebMS.Controllers.HomeController", "rp": "UserManagement.Web_HomeController.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 7, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "UserManagement.WebMS.Controllers.UsersController", "rp": "UserManagement.Web_UsersController.html", "cl": 21, "ucl": 0, "cal": 21, "tl": 40, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "UserManagement.WebMS.Controllers.UsersController", "rp": "UserManagement.Web_UsersController.html", "cl": 21, "ucl": 0, "cal": 21, "tl": 45, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
 ];
 

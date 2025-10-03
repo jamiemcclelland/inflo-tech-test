@@ -20,6 +20,48 @@ public class UserServiceTests
         result.Should().BeSameAs(users);
     }
 
+    [Fact]
+    public void FilterByActive_WhenTrue_ReturnsOnlyActiveUsers()
+    {
+        // Arrange
+        var service = CreateService();
+        var users = new[]
+        {
+            new User { Forename = "ActiveUser", IsActive = true },
+            new User { Forename = "InactiveUser", IsActive = false }
+        }.AsQueryable();
+
+        _dataContext.Setup(s => s.GetAll<User>()).Returns(users);
+
+        // Act
+        var result = service.FilterByActive(true).ToList();
+
+        // Assert
+        result.Should().ContainSingle()
+              .Which.Forename.Should().Be("ActiveUser");
+    }
+
+    [Fact]
+    public void FilterByActive_WhenFalse_ReturnsOnlyInactiveUsers()
+    {
+        // Arrange
+        var service = CreateService();
+        var users = new[]
+        {
+            new User { Forename = "ActiveUser", IsActive = true },
+            new User { Forename = "InactiveUser", IsActive = false }
+        }.AsQueryable();
+
+        _dataContext.Setup(s => s.GetAll<User>()).Returns(users);
+
+        // Act
+        var result = service.FilterByActive(false).ToList();
+
+        // Assert
+        result.Should().ContainSingle()
+              .Which.Forename.Should().Be("InactiveUser");
+    }
+
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)
     {
         var users = new[]

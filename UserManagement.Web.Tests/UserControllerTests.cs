@@ -15,15 +15,16 @@ public class UserControllerTests
         var controller = CreateController();
         var users = SetupUsers();
 
+        _userService.Setup(s => s.GetAll()).Returns(users);
+
         // Act: Invokes the method under test with the arranged parameters.
         var result = controller.List();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
         result.Model
             .Should().BeOfType<UserListViewModel>()
-            .Which.Items.Should().BeEquivalentTo(users);
+            .Which.Items.Should().BeEquivalentTo(users, opts => opts.ExcludingMissingMembers());
     }
-
 
     [Fact]
     public void List_WhenFilteringActiveUsers_ShouldReturnOnlyActive()
@@ -32,7 +33,9 @@ public class UserControllerTests
         var controller = CreateController();
         var activeUser = SetupUsers(forename: "Alice", isActive: true).First();
         var inactiveUser = SetupUsers(forename: "Bob", isActive: false).First();
-        _userService.Setup(s => s.GetAll()).Returns([activeUser, inactiveUser]);
+
+        _userService.Setup(s => s.FilterByActive(true))
+            .Returns([activeUser]);
 
         // Act
         var result = controller.List(isActive: true);
@@ -51,7 +54,9 @@ public class UserControllerTests
         var controller = CreateController();
         var activeUser = SetupUsers(forename: "Charlie", isActive: true).First();
         var inactiveUser = SetupUsers(forename: "Dana", isActive: false).First();
-        _userService.Setup(s => s.GetAll()).Returns([activeUser, inactiveUser]);
+
+        _userService.Setup(s => s.FilterByActive(false))
+            .Returns([inactiveUser]);
 
         // Act
         var result = controller.List(isActive: false);
@@ -68,8 +73,8 @@ public class UserControllerTests
     {
         // Arrange
         var controller = CreateController();
-        var activeUser = SetupUsers(isActive: true).First();
-        _userService.Setup(s => s.GetAll()).Returns(new[] { activeUser });
+        _userService.Setup(s => s.FilterByActive(false))
+            .Returns(Enumerable.Empty<User>());
 
         // Act
         var result = controller.List(isActive: false);
