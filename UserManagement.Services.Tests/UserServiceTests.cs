@@ -124,6 +124,39 @@ public class UserServiceTests
         _dataContext.Verify(d => d.Create(newUser), Times.Once);
     }
 
+    [Fact]
+    public void Delete_WhenUserExists_ShouldCallDeleteOnce()
+    {
+        // Arrange
+        var service = CreateService();
+        var user = new User { Id = 1, Forename = "Test", Surname = "User" };
+        var users = new[] { user }.AsQueryable();
+
+        _dataContext.Setup(s => s.GetAll<User>()).Returns(users);
+
+        // Act
+        service.Delete(1);
+
+        // Assert
+        _dataContext.Verify(s => s.Delete(user), Times.Once);
+    }
+
+    [Fact]
+    public void Delete_WhenUserDoesNotExist_ShouldNotCallDelete()
+    {
+        // Arrange
+        var service = CreateService();
+        var users = new[] { new User { Id = 1, Forename = "Test", Surname = "User" } }.AsQueryable();
+
+        _dataContext.Setup(s => s.GetAll<User>()).Returns(users);
+
+        // Act
+        service.Delete(2);
+
+        // Assert
+        _dataContext.Verify(s => s.Delete(It.IsAny<User>()), Times.Never);
+    }
+
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)
     {
         var users = new[]

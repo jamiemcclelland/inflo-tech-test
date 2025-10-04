@@ -82,4 +82,12 @@ public class UsersController : Controller
 
         return RedirectToAction("List");
     }
+
+    [HttpPost("delete/{id}")]
+    [ValidateAntiForgeryToken]
+    public IActionResult Delete(int id)
+    {
+        _userService.Delete(id);
+        return Ok();
+    }
 }

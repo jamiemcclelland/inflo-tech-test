@@ -35,4 +35,13 @@ public class UserService : IUserService
 
         _dataAccess.Create(user);
     }
+
+    public void Delete(int id)
+    {
+        var user = _dataAccess.GetAll<User>().FirstOrDefault(u => u.Id == id);
+        if (user != null)
+        {
+            _dataAccess.Delete(user);
+        }
+    }
 }

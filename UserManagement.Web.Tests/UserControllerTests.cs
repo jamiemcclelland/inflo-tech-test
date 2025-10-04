@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
@@ -101,6 +102,36 @@ public class UserControllerTests
         returnedModel.NewUser.Should().BeEquivalentTo(newUserVm);
         returnedModel.Users.Should().BeEquivalentTo(existingUsers, opts => opts.ExcludingMissingMembers());
     }
+
+    [Fact]
+    public void Delete_WhenCalled_ShouldCallServiceDeleteOnce()
+    {
+        // Arrange
+        var controller = CreateController();
+        var userId = 5;
+
+        // Act
+        var result = controller.Delete(userId);
+
+        // Assert
+        _userService.Verify(s => s.Delete(userId), Times.Once);
+        result.Should().BeOfType<OkResult>();
+    }
+
+    [Fact]
+    public void Delete_WhenServiceThrowsException_ShouldPropagateException()
+    {
+        // Arrange
+        var controller = CreateController();
+        _userService.Setup(s => s.Delete(It.IsAny<int>())).Throws(new Exception("Something went wrong"));
+
+        // Act
+        var action = () => controller.Delete(1);
+
+        // Assert
+        action.Should().Throw<Exception>().WithMessage("Something went wrong");
+    }
+
     private User[] SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)
     {
         var users = new[]
