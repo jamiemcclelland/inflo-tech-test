@@ -43,7 +43,7 @@
                                 Actions
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="btnToggleActions">
-                                <li><a class="dropdown-item" href="#">View</a></li>
+                                <li><a class="dropdown-item view-user-btn" href="#" data-bs-toggle="offcanvas" data-bs-target="#viewUserSidebar" data-user='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(user))'>View</a></li>
                                 <li><a class="dropdown-item" href="#">Edit</a></li>
                                 <li><a class="dropdown-item" href="#">Delete</a></li>
                             </ul>
@@ -129,6 +129,35 @@
     </div>
 </div>
 
+<div class="offcanvas offcanvas-end" tabindex="-1" id="viewUserSidebar" aria-labelledby="viewUserSidebarLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="viewUserSidebarLabel">User Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="user-detail">
+            <label class="form-label">Forename</label>
+            <p id="viewForename" class="form-control-plaintext"></p>
+        </div>
+        <div class="user-detail">
+            <label class="form-label">Surname</label>
+            <p id="viewSurname" class="form-control-plaintext"></p>
+        </div>
+        <div class="user-detail">
+            <label class="form-label">Date of Birth</label>
+            <p id="viewDateOfBirth" class="form-control-plaintext"></p>
+        </div>
+        <div class="user-detail">
+            <label class="form-label">Email</label>
+            <p id="viewEmail" class="form-control-plaintext"></p>
+        </div>
+        <div class="user-detail">
+            <label class="form-label">Active</label>
+            <p id="viewIsActive" class="form-control-plaintext"></p>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         $(function () {
@@ -139,6 +168,29 @@
                     e.preventDefault();
                     form.find("span.field-validation-error").removeClass("d-none");
                 } else {}
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const viewButtons = document.querySelectorAll('.view-user-btn');
+
+            const forenameEl = document.getElementById('viewForename');
+            const surnameEl = document.getElementById('viewSurname');
+            const dobEl = document.getElementById('viewDateOfBirth');
+            const emailEl = document.getElementById('viewEmail');
+            const isActiveEl = document.getElementById('viewIsActive');
+
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const user = JSON.parse(this.dataset.user);
+
+                    forenameEl.textContent = user.Forename;
+                    surnameEl.textContent = user.Surname;
+                    dobEl.textContent = user.DateOfBirth;
+                    emailEl.textContent = user.Email;
+                    isActiveEl.textContent = user.IsActive ? "Yes" : "No";
+                });
             });
         });
     </script>
