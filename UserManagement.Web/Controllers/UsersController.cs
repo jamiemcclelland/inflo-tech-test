@@ -45,7 +45,7 @@ public class UsersController : Controller
     [HttpPost("Users/Create")]
     public IActionResult Create(UserPageViewModel model)
     {
-        var newUser = model.NewUser;
+        var newUser = model.User;
 
         if (!ModelState.IsValid)
         {
@@ -61,7 +61,7 @@ public class UsersController : Controller
                     Email = u.Email,
                     IsActive = u.IsActive
                 }).ToList(),
-                NewUser = newUser
+                User = newUser
             };
 
             return View("List", pageModel);
@@ -80,6 +80,31 @@ public class UsersController : Controller
 
         _userService.Add(user);
 
+        return RedirectToAction("List");
+    }
+
+    [HttpPost("Users/Edit/{id}")]
+    [ValidateAntiForgeryToken]
+    public IActionResult Edit(int id, UserPageViewModel model)
+    {
+        var updatedUser = model.User;
+
+        if (!ModelState.IsValid)
+        return BadRequest("Invalid user data.");
+
+        var formattedDate = DateTime.Parse(updatedUser.DateOfBirth).ToString("dd/MM/yyyy");
+
+        var userToUpdate = new User
+        {
+            Id = id,
+            Forename = updatedUser.Forename,
+            Surname = updatedUser.Surname,
+            DateOfBirth = formattedDate,
+            Email = updatedUser.Email,
+            IsActive = updatedUser.IsActive
+        };
+
+        _userService.Update(id, userToUpdate);
         return RedirectToAction("List");
     }
 

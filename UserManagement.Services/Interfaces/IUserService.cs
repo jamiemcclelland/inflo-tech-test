@@ -14,4 +14,5 @@ public interface IUserService
     IEnumerable<User> GetAll();
     void Add(User user);
     void Delete(int id);
+    void Update(int id, User user);
 }

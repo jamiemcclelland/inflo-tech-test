@@ -44,4 +44,19 @@ public class UserService : IUserService
             _dataAccess.Delete(user);
         }
     }
+
+    public void Update(int id, User updatedUser)
+    {
+        var user = _dataAccess.GetAll<User>().FirstOrDefault(u => u.Id == id);
+        if (user != null)
+        {
+            user.Forename = updatedUser.Forename;
+            user.Surname = updatedUser.Surname;
+            user.DateOfBirth = updatedUser.DateOfBirth;
+            user.Email = updatedUser.Email;
+            user.IsActive = updatedUser.IsActive;
+
+            _dataAccess.Update(user);
+        }
+    }
 }

@@ -6,5 +6,5 @@ public class UserPageViewModel
     public List<UserListItemViewModel> Users { get; set; } = new();
 
     // For the sidebar “Add User” form
-    public UserCreateViewModel NewUser { get; set; } = new();
+    public UserCreateViewModel User { get; set; } = new();
 }

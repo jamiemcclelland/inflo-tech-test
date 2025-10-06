@@ -44,7 +44,7 @@
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="btnToggleActions">
                                 <li><a class="dropdown-item view-user-btn" href="#" data-bs-toggle="offcanvas" data-bs-target="#viewUserSidebar" data-user='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(user))'>View</a></li>
-                                <li><a class="dropdown-item" href="#">Edit</a></li>
+                                <li><a class="dropdown-item edit-user-btn" href="#" data-bs-toggle="offcanvas" data-bs-target="#userSidebar" data-user='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(user))'>Edit</a></li>
                                 <li><a class="dropdown-item delete-user-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-user-id="@user.Id">Delete</a></li>
                             </ul>
                         </div>
@@ -62,7 +62,7 @@
         <a asp-controller="Users" asp-action="List" asp-route-isActive="false" class="btn btn-default">Non Active</a>
     </div>
 
-    <a href="#" data-bs-toggle="offcanvas" data-bs-target="#addUserSidebar" class="btn btn-primary float-end">
+    <a href="#" data-bs-toggle="offcanvas" data-bs-target="#userSidebar" class="btn btn-primary float-end add-user-btn">
         Add User
     </a>
 </div>
@@ -93,45 +93,48 @@
 </div>
 
 
-<!-- Sidebar form -->
-<div class="offcanvas offcanvas-end" id="addUserSidebar" tabindex="-1">
+<!-- User Sidebar form -->
+<div class="offcanvas offcanvas-end" id="userSidebar" tabindex="-1">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title">Add New User</h5>
+        <h5 class="offcanvas-title" id="userSidebarTitle">Add New User</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body">
-        <form id="addUserForm" asp-controller="Users" asp-action="Create" method="post">
+        <form id="userForm" asp-controller="Users" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" id="userId" name="Id" />
+
             <div class="mb-3">
-                <label asp-for="NewUser.Forename" class="form-label"></label>
-                <input asp-for="NewUser.Forename" class="form-control" />
-                <span asp-validation-for="NewUser.Forename" class="text-danger d-none"></span>
+                <label asp-for="User.Forename" class="form-label"></label>
+                <input asp-for="User.Forename" class="form-control" id="Forename" />
+                <span asp-validation-for="User.Forename" class="text-danger d-none"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="NewUser.Surname" class="form-label"></label>
-                <input asp-for="NewUser.Surname" class="form-control" />
-                <span asp-validation-for="NewUser.Surname" class="text-danger d-none"></span>
+                <label asp-for="User.Surname" class="form-label"></label>
+                <input asp-for="User.Surname" class="form-control" id="Surname"/>
+                <span asp-validation-for="User.Surname" class="text-danger d-none"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="NewUser.DateOfBirth" class="form-label">Date of Birth</label>
-                <input asp-for="NewUser.DateOfBirth" class="form-control" />
-                <span asp-validation-for="NewUser.DateOfBirth" class="text-danger d-none"></span>
+                <label asp-for="User.DateOfBirth" class="form-label">Date of Birth</label>
+                <input asp-for="User.DateOfBirth" class="form-control" id="DateOfBirth"/>
+                <span asp-validation-for="User.DateOfBirth" class="text-danger d-none"></span>
             </div>
 
-
             <div class="mb-3">
-                <label asp-for="NewUser.Email" class="form-label">Email Address</label>
-                <input asp-for="NewUser.Email" class="form-control" />
-                <span asp-validation-for="NewUser.Email" class="text-danger d-none"></span>
+                <label asp-for="User.Email" class="form-label">Email Address</label>
+                <input asp-for="User.Email" class="form-control" id="Email"/>
+                <span asp-validation-for="User.Email" class="text-danger d-none"></span>
             </div>
 
             <div class="form-check mb-3">
-                <input asp-for="NewUser.IsActive" class="form-check-input" />
-                <label asp-for="NewUser.IsActive" class="form-check-label"></label>
+                <input asp-for="User.IsActive" class="form-check-input" id="IsActive"/>
+                <label asp-for="User.IsActive" class="form-check-label"></label>
             </div>
 
-            <button type="submit" class="btn btn-success" id="saveButton">Save</button>
+            <button type="submit" class="btn btn-success" id="userSidebarSaveButton">Save</button>
         </form>
     </div>
 </div>
@@ -168,7 +171,7 @@
 @section Scripts {
     <script>
         $(function () {
-            var form = $("#addUserForm");
+            var form = $("#userForm");
 
             form.on("submit", function (e) {
                 if (!form.valid()) {
@@ -202,43 +205,104 @@
         });
     </script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const deleteModal = document.getElementById('deleteUserModal');
-        const confirmInput = document.getElementById('deleteConfirmText');
-        const confirmBtn = document.getElementById('confirmDeleteBtn');
-        const deleteForm = document.getElementById('deleteUserForm');
-        const deleteUserIdField = document.getElementById('deleteUserId');
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteModal = document.getElementById('deleteUserModal');
+            const confirmInput = document.getElementById('deleteConfirmText');
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            const deleteForm = document.getElementById('deleteUserForm');
+            const deleteUserIdField = document.getElementById('deleteUserId');
 
-        confirmInput.addEventListener('input', function () {
-        confirmBtn.disabled = confirmInput.value.toLowerCase() !== 'delete';
-        });
+            confirmInput.addEventListener('input', function () {
+            confirmBtn.disabled = confirmInput.value.toLowerCase() !== 'delete';
+            });
 
-        document.querySelectorAll('.delete-user-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const userId = this.dataset.userId;
-            deleteUserIdField.value = userId;
-        });
-        });
+            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const userId = this.dataset.userId;
+                deleteUserIdField.value = userId;
+            });
+            });
 
-        deleteForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
+            deleteForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-        const id = deleteUserIdField.value;
-        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const id = deleteUserIdField.value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-        const response = await fetch(`/users/delete/${id}`, {
-            method: 'POST',
-            headers: {
-                'RequestVerificationToken': token
+            const response = await fetch(`/users/delete/${id}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                }
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error deleting user.');
             }
+            });
         });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('userSidebar');
+            const form = document.getElementById('userForm');
+            const title = document.getElementById('userSidebarTitle');
+            const saveButton = document.getElementById('userSidebarSaveButton');
 
-        if (response.ok) {
-            location.reload();
-        } else {
-            alert('Error deleting user.');
-        }
+            const fields = {
+                id: document.getElementById('userId'),
+                forename: document.getElementById('Forename'),
+                surname: document.getElementById('Surname'),
+                dob: document.getElementById('DateOfBirth'),
+                email: document.getElementById('Email'),
+                isActive: document.getElementById('IsActive')
+            };
+
+            function toIsoDate(dateStr) {
+                if (!dateStr) return '';
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    const [day, month, year] = parts;
+                    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                }
+                return dateStr;
+            }
+
+            document.querySelectorAll('.add-user-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    title.textContent = 'Add New User';
+                    saveButton.textContent = 'Save';
+                    form.action = '/users/users/create';
+
+                    fields.id.value = '';
+                    fields.forename.value = '';
+                    fields.surname.value = '';
+                    fields.dob.value = '';
+                    fields.email.value = '';
+                    fields.isActive.checked = false;
+
+                    form.querySelectorAll('span.text-danger').forEach(span => span.classList.add('d-none'));
+                });
+            });
+
+            document.querySelectorAll('.edit-user-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const user = JSON.parse(this.dataset.user);
+
+                    title.textContent = 'Edit User';
+                    saveButton.textContent = 'Update';
+                    form.action = `/users/users/edit/${user.Id}`;
+
+                    fields.id.value = user.Id;
+                    fields.forename.value = user.Forename;
+                    fields.surname.value = user.Surname;
+                    fields.dob.value = toIsoDate(user.DateOfBirth);
+                    fields.email.value = user.Email;
+                    fields.isActive.checked = user.IsActive;
+                });
+            });
         });
-    });
     </script>
 }

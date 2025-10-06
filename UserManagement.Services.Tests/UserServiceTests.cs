@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
@@ -155,6 +156,98 @@ public class UserServiceTests
 
         // Assert
         _dataContext.Verify(s => s.Delete(It.IsAny<User>()), Times.Never);
+    }
+
+    [Fact]
+    public void Update_ExistingUser_UpdatesPropertiesAndCallsDataAccessUpdate()
+    {
+        var service = CreateService();
+        var existingUser = new User
+        {
+            Id = 1,
+            Forename = "OldFirst",
+            Surname = "OldLast",
+            DateOfBirth = "01/01/1990",
+            Email = "old@example.com",
+            IsActive = true
+        };
+
+        var updatedUser = new User
+        {
+            Forename = "NewFirst",
+            Surname = "NewLast",
+            DateOfBirth = "02/02/2000",
+            Email = "new@example.com",
+            IsActive = false
+        };
+
+        var users = new List<User> { existingUser }.AsQueryable();
+        _dataContext.Setup(d => d.GetAll<User>()).Returns(users);
+
+        service.Update((int)existingUser.Id, updatedUser);
+
+        existingUser.Forename.Should().Be("NewFirst");
+        existingUser.Surname.Should().Be("NewLast");
+        existingUser.DateOfBirth.Should().Be("02/02/2000");
+        existingUser.Email.Should().Be("new@example.com");
+        existingUser.IsActive.Should().BeFalse();
+
+        _dataContext.Verify(d => d.Update(existingUser), Times.Once);
+    }
+
+    [Fact]
+    public void Update_NonExistentUser_DoesNotCallDataAccessUpdate()
+    {
+        var service = CreateService();
+        var updatedUser = new User
+        {
+            Forename = "NewFirst",
+            Surname = "NewLast",
+            DateOfBirth = "02/02/2000",
+            Email = "new@example.com",
+            IsActive = false
+        };
+
+        _dataContext.Setup(d => d.GetAll<User>()).Returns(new List<User>().AsQueryable());
+        service.Update(999, updatedUser);
+        _dataContext.Verify(d => d.Update(It.IsAny<User>()), Times.Never);
+    }
+
+    [Fact]
+    public void Update_WithPartialNullProperties_UpdatesOnlyProvidedProperties()
+    {
+        var service = CreateService();
+        var existingUser = new User
+        {
+            Id = 1,
+            Forename = "OldFirst",
+            Surname = "OldLast",
+            DateOfBirth = "01/01/1990",
+            Email = "old@example.com",
+            IsActive = true
+        };
+
+        var updatedUser = new User
+        {
+            Forename = string.Empty,
+            Surname = "UpdatedLast",
+            DateOfBirth = string.Empty,
+            Email = "updated@example.com",
+            IsActive = false
+        };
+
+        var users = new List<User> { existingUser }.AsQueryable();
+        _dataContext.Setup(d => d.GetAll<User>()).Returns(users);
+
+        service.Update((int)existingUser.Id, updatedUser);
+
+        existingUser.Forename.Should().Be(string.Empty);
+        existingUser.Surname.Should().Be("UpdatedLast");
+        existingUser.DateOfBirth.Should().Be(string.Empty);
+        existingUser.Email.Should().Be("updated@example.com");
+        existingUser.IsActive.Should().BeFalse();
+
+        _dataContext.Verify(d => d.Update(existingUser), Times.Once);
     }
 
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)

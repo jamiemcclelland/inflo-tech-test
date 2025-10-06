@@ -44,7 +44,7 @@ public class UserControllerTests
 
         var model = new UserPageViewModel
         {
-            NewUser = newUserVm
+            User = newUserVm
         };
 
         // Act
@@ -81,7 +81,7 @@ public class UserControllerTests
 
         var model = new UserPageViewModel
         {
-            NewUser = newUserVm
+            User = newUserVm
         };
 
         var existingUsers = SetupUsers();
@@ -99,8 +99,99 @@ public class UserControllerTests
 
         var returnedModel = viewResult.Model as UserPageViewModel;
         returnedModel.Should().NotBeNull();
-        returnedModel.NewUser.Should().BeEquivalentTo(newUserVm);
+        returnedModel.User.Should().BeEquivalentTo(newUserVm);
         returnedModel.Users.Should().BeEquivalentTo(existingUsers, opts => opts.ExcludingMissingMembers());
+    }
+
+        [Fact]
+    public void Edit_Post_ValidModel_CallsUpdateAndRedirects()
+    {
+        // Arrange
+        var controller = CreateController();
+        var model = new UserPageViewModel
+        {
+            User = new UserCreateViewModel
+            {
+                Forename = "John",
+                Surname = "Doe",
+                DateOfBirth = "1999-12-31",
+                Email = "john@example.com",
+                IsActive = true
+            }
+        };
+
+        // Act
+        var result = controller.Edit(1, model);
+
+        // Assert
+        _userService.Verify(s => s.Update(1, It.Is<User>(u =>
+            u.Forename == "John" &&
+            u.Surname == "Doe" &&
+            u.DateOfBirth == "31/12/1999" &&
+            u.Email == "john@example.com" &&
+            u.IsActive == true
+        )), Times.Once);
+
+        result.Should().BeOfType<RedirectToActionResult>()
+            .Which.ActionName.Should().Be("List");
+    }
+
+    [Fact]
+    public void Edit_Post_InvalidModel_ReturnsBadRequest()
+    {
+        // Arrange
+        var controller = CreateController();
+        controller.ModelState.AddModelError("Forename", "Required");
+
+        var model = new UserPageViewModel
+        {
+            User = new UserCreateViewModel
+            {
+                Forename = "",
+                Surname = "Doe",
+                DateOfBirth = "1999-12-31",
+                Email = "john@example.com",
+                IsActive = true
+            }
+        };
+
+        // Act
+        var result = controller.Edit(1, model);
+
+        // Assert
+        _userService.Verify(s => s.Update(It.IsAny<int>(), It.IsAny<User>()), Times.Never);
+
+        result.Should().BeOfType<BadRequestObjectResult>()
+            .Which.Value.Should().Be("Invalid user data.");
+    }
+
+    [Fact]
+    public void Edit_Post_ReformatsDateBeforeCallingUpdate()
+    {
+        // Arrange
+        var controller = CreateController();
+        var model = new UserPageViewModel
+        {
+            User = new UserCreateViewModel
+            {
+                Forename = "Jane",
+                Surname = "Smith",
+                DateOfBirth = "2001-02-15",
+                Email = "jane@example.com",
+                IsActive = false
+            }
+        };
+
+        User? capturedUser = null;
+        _userService.Setup(s => s.Update(It.IsAny<int>(), It.IsAny<User>()))
+            .Callback<int, User>((id, user) => capturedUser = user);
+
+        // Act
+        controller.Edit(42, model);
+
+        // Assert
+        capturedUser.Should().NotBeNull();
+        capturedUser!.DateOfBirth.Should().Be("15/02/2001");
     }
 
     [Fact]
