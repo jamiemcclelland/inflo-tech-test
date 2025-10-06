@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using UserManagement.Data;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
 
-namespace UserManagement.Data.Tests;
+namespace UserManagement.Service.Tests;
 
 public class UserServiceTests
 {
@@ -18,7 +19,7 @@ public class UserServiceTests
         var result = service.GetAll();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
-        result.Should().BeSameAs(users);
+        result.Should().BeEquivalentTo(users, opts => opts.ExcludingMissingMembers());
     }
 
     [Fact]
@@ -26,11 +27,11 @@ public class UserServiceTests
     {
         // Arrange
         var service = CreateService();
-        var users = new[]
+        var users = new List<User>
         {
             new User { Forename = "ActiveUser", IsActive = true },
             new User { Forename = "InactiveUser", IsActive = false }
-        }.AsQueryable();
+        };
 
         _dataContext.Setup(s => s.GetAll<User>()).Returns(users);
 
@@ -47,11 +48,11 @@ public class UserServiceTests
     {
         // Arrange
         var service = CreateService();
-        var users = new[]
+        var users = new List<User>
         {
             new User { Forename = "ActiveUser", IsActive = true },
             new User { Forename = "InactiveUser", IsActive = false }
-        }.AsQueryable();
+        };
 
         _dataContext.Setup(s => s.GetAll<User>()).Returns(users);
 
@@ -64,64 +65,16 @@ public class UserServiceTests
     }
 
     [Fact]
-    public void Add_WhenUserHasNoId_AssignsNextIdAndCallsCreate()
+    public void Add_WhenCalled_CallsCreateOnDataContext()
     {
         // Arrange
         var service = CreateService();
-        var existingUsers = new[]
-        {
-            new User { Id = 1, Forename = "ExistingUser", IsActive = true }
-        }.AsQueryable();
-
-        _dataContext.Setup(s => s.GetAll<User>()).Returns(existingUsers);
-
-        var newUser = new User { Forename = "NewUser", IsActive = true, Id = 0 };
+        var newUser = new User { Forename = "NewUser", IsActive = true };
 
         // Act
         service.Add(newUser);
 
         // Assert
-        newUser.Id.Should().Be(2);
-        _dataContext.Verify(d => d.Create(newUser), Times.Once);
-    }
-
-    [Fact]
-    public void Add_WhenNoExistingUsers_AssignsIdOneAndCallsCreate()
-    {
-        // Arrange
-        var service = CreateService();
-        var emptyUsers = Enumerable.Empty<User>().AsQueryable();
-        _dataContext.Setup(s => s.GetAll<User>()).Returns(emptyUsers);
-
-        var newUser = new User { Forename = "FirstUser", IsActive = true, Id = 0 };
-
-        // Act
-        service.Add(newUser);
-
-        // Assert
-        newUser.Id.Should().Be(1);
-        _dataContext.Verify(d => d.Create(newUser), Times.Once);
-    }
-
-    [Fact]
-    public void Add_WhenUserHasExistingId_UsesProvidedIdAndCallsCreate()
-    {
-        // Arrange
-        var service = CreateService();
-        var existingUsers = new[]
-        {
-            new User { Id = 1, Forename = "ExistingUser", IsActive = true }
-        }.AsQueryable();
-
-        _dataContext.Setup(s => s.GetAll<User>()).Returns(existingUsers);
-
-        var newUser = new User { Id = 99, Forename = "PreAssignedIdUser", IsActive = true };
-
-        // Act
-        service.Add(newUser);
-
-        // Assert
-        newUser.Id.Should().Be(99);
         _dataContext.Verify(d => d.Create(newUser), Times.Once);
     }
 
@@ -131,7 +84,7 @@ public class UserServiceTests
         // Arrange
         var service = CreateService();
         var user = new User { Id = 1, Forename = "Test", Surname = "User" };
-        var users = new[] { user }.AsQueryable();
+        var users = new List<User> { user };
 
         _dataContext.Setup(s => s.GetAll<User>()).Returns(users);
 
@@ -147,7 +100,7 @@ public class UserServiceTests
     {
         // Arrange
         var service = CreateService();
-        var users = new[] { new User { Id = 1, Forename = "Test", Surname = "User" } }.AsQueryable();
+        var users = new List<User> { new User { Id = 1, Forename = "Test", Surname = "User" } };
 
         _dataContext.Setup(s => s.GetAll<User>()).Returns(users);
 
@@ -181,7 +134,7 @@ public class UserServiceTests
             IsActive = false
         };
 
-        var users = new List<User> { existingUser }.AsQueryable();
+        var users = new List<User> { existingUser };
         _dataContext.Setup(d => d.GetAll<User>()).Returns(users);
 
         service.Update((int)existingUser.Id, updatedUser);
@@ -208,7 +161,7 @@ public class UserServiceTests
             IsActive = false
         };
 
-        _dataContext.Setup(d => d.GetAll<User>()).Returns(new List<User>().AsQueryable());
+        _dataContext.Setup(d => d.GetAll<User>()).Returns(new List<User>());
         service.Update(999, updatedUser);
         _dataContext.Verify(d => d.Update(It.IsAny<User>()), Times.Never);
     }
@@ -236,7 +189,7 @@ public class UserServiceTests
             IsActive = false
         };
 
-        var users = new List<User> { existingUser }.AsQueryable();
+        var users = new List<User> { existingUser };
         _dataContext.Setup(d => d.GetAll<User>()).Returns(users);
 
         service.Update((int)existingUser.Id, updatedUser);
@@ -250,9 +203,9 @@ public class UserServiceTests
         _dataContext.Verify(d => d.Update(existingUser), Times.Once);
     }
 
-    private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)
+    private List<User> SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)
     {
-        var users = new[]
+        var users = new List<User>
         {
             new User
             {
@@ -262,7 +215,7 @@ public class UserServiceTests
                 Email = email,
                 IsActive = isActive
             }
-        }.AsQueryable();
+        };
 
         _dataContext
             .Setup(s => s.GetAll<User>())

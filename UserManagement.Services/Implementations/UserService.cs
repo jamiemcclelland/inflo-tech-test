@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UserManagement.Data;
 using UserManagement.Models;
@@ -19,20 +18,13 @@ public class UserService : IUserService
     /// <returns></returns>
     public IEnumerable<User> FilterByActive(bool isActive)
     {
-        return _dataAccess.GetAll<User>().Where(u => u.IsActive == isActive);
+        return _dataAccess.GetAll<User>().Where(u => u.IsActive == isActive).ToList();
     }
 
-    public IEnumerable<User> GetAll() => _dataAccess.GetAll<User>();
+    public IEnumerable<User> GetAll() => _dataAccess.GetAll<User>().ToList();
 
     public void Add(User user)
     {
-        if (user.Id == 0)
-        {
-            user.Id = _dataAccess.GetAll<User>().Any()
-                ? _dataAccess.GetAll<User>().Max(u => u.Id) + 1
-                : 1;
-        }
-
         _dataAccess.Create(user);
     }
 

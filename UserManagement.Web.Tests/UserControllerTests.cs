@@ -1,12 +1,11 @@
 using System;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Web.Models.Users;
 using UserManagement.WebMS.Controllers;
 
-namespace UserManagement.Data.Tests;
+namespace UserManagement.Web.Tests;
 
 public class UserControllerTests
 {
@@ -103,7 +102,7 @@ public class UserControllerTests
         returnedModel.Users.Should().BeEquivalentTo(existingUsers, opts => opts.ExcludingMissingMembers());
     }
 
-        [Fact]
+    [Fact]
     public void Edit_Post_ValidModel_CallsUpdateAndRedirects()
     {
         // Arrange

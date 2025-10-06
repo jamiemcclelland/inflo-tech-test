@@ -28,15 +28,7 @@ public class UsersController : Controller
 
         var model = new UserPageViewModel
         {
-            Users = users.Select(u => new UserListItemViewModel
-            {
-                Id = u.Id,
-                Forename = u.Forename,
-                Surname = u.Surname,
-                DateOfBirth = u.DateOfBirth,
-                Email = u.Email,
-                IsActive = u.IsActive
-            }).ToList()
+            Users = users.Select(MapUserModels).ToList()
         };
 
         return View(model);
@@ -52,15 +44,7 @@ public class UsersController : Controller
             var users = _userService.GetAll();
             var pageModel = new UserPageViewModel
             {
-                Users = users.Select(u => new UserListItemViewModel
-                {
-                    Id = u.Id,
-                    Forename = u.Forename,
-                    Surname = u.Surname,
-                    DateOfBirth = u.DateOfBirth,
-                    Email = u.Email,
-                    IsActive = u.IsActive
-                }).ToList(),
+                Users = users.Select(MapUserModels).ToList(),
                 User = newUser
             };
 
@@ -90,7 +74,7 @@ public class UsersController : Controller
         var updatedUser = model.User;
 
         if (!ModelState.IsValid)
-        return BadRequest("Invalid user data.");
+            return BadRequest("Invalid user data.");
 
         var formattedDate = DateTime.Parse(updatedUser.DateOfBirth).ToString("dd/MM/yyyy");
 
@@ -114,5 +98,18 @@ public class UsersController : Controller
     {
         _userService.Delete(id);
         return Ok();
+    }
+
+    private static UserListItemViewModel MapUserModels(User user)
+    {
+        return new UserListItemViewModel
+        {
+            Id = user.Id,
+            Forename = user.Forename,
+            Surname = user.Surname,
+            DateOfBirth = user.DateOfBirth,
+            Email = user.Email,
+            IsActive = user.IsActive
+        };
     }
 }
