@@ -203,6 +203,122 @@ public class UserServiceTests
         _dataContext.Verify(d => d.Update(existingUser), Times.Once);
     }
 
+    [Fact]
+    public void Add_ShouldCreateUserAndLogCreation()
+    {
+        // Arrange
+        var service = CreateService();
+        var newUser = new User
+        {
+            Id = 99,
+            Forename = "Peter",
+            Surname = "Parker",
+            Email = "spidey@example.com",
+            DateOfBirth = "01/01/2000",
+            IsActive = true
+        };
+
+        // Act
+        service.Add(newUser);
+
+        // Assert
+        _dataContext.Verify(d => d.Create(It.Is<User>(u => u == newUser)), Times.Once);
+
+        _dataContext.Verify(d => d.Create(It.Is<UserLog>(log =>
+            log.UserId == newUser.Id &&
+            log.Action == "Created user" &&
+            log.NewValue.Contains("Peter Parker") &&
+            log.PreviousValue == string.Empty &&
+            log.UserName == "Peter Parker"
+        )), Times.Once);
+    }
+
+    [Fact]
+    public void Update_WhenUserPropertiesChange_ShouldCreateLogsForEachChange()
+    {
+        // Arrange
+        var service = CreateService();
+        var existingUser = new User
+        {
+            Id = 1,
+            Forename = "OldFirst",
+            Surname = "OldLast",
+            DateOfBirth = "01/01/1990",
+            Email = "old@example.com",
+            IsActive = true
+        };
+
+        var updatedUser = new User
+        {
+            Forename = "NewFirst",
+            Surname = "NewLast",
+            DateOfBirth = "02/02/2000",
+            Email = "new@example.com",
+            IsActive = false
+        };
+
+        _dataContext.Setup(d => d.GetAll<User>()).Returns(new List<User> { existingUser });
+
+        // Act
+        service.Update((int)existingUser.Id, updatedUser);
+
+        // Assert
+        _dataContext.Verify(d => d.Update(existingUser), Times.Once);
+
+        // 5 potential change logs expected (one per property)
+        _dataContext.Verify(d => d.Create(It.Is<UserLog>(l =>
+            l.UserId == existingUser.Id &&
+            l.Action == "Forename changed" &&
+            l.PreviousValue == "OldFirst" &&
+            l.NewValue == "NewFirst" &&
+            l.UserName == "OldFirst OldLast"
+        )), Times.Once);
+
+        _dataContext.Verify(d => d.Create(It.Is<UserLog>(l =>
+            l.UserId == existingUser.Id &&
+            l.Action == "Active status changed" &&
+            l.PreviousValue == "True" &&
+            l.NewValue == "False"
+        )), Times.Once);
+
+        // Optional: ensure total logs were created five times
+        _dataContext.Verify(d => d.Create(It.IsAny<UserLog>()), Times.Exactly(5));
+    }
+
+    [Fact]
+    public void Update_WhenNoPropertiesChange_ShouldNotCreateAnyLogs()
+    {
+        // Arrange
+        var service = CreateService();
+        var existingUser = new User
+        {
+            Id = 1,
+            Forename = "Same",
+            Surname = "Same",
+            DateOfBirth = "01/01/2000",
+            Email = "same@example.com",
+            IsActive = true
+        };
+
+        var updatedUser = new User
+        {
+            Forename = "Same",
+            Surname = "Same",
+            DateOfBirth = "01/01/2000",
+            Email = "same@example.com",
+            IsActive = true
+        };
+
+        _dataContext.Setup(d => d.GetAll<User>()).Returns(new List<User> { existingUser });
+
+        // Act
+        service.Update((int)existingUser.Id, updatedUser);
+
+        // Assert
+        _dataContext.Verify(d => d.Update(existingUser), Times.Once);
+        _dataContext.Verify(d => d.Create(It.IsAny<UserLog>()), Times.Never);
+    }
+
     private List<User> SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)
     {
         var users = new List<User>

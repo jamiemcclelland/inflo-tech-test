@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UserManagement.Data;
 using UserManagement.Models;
@@ -26,6 +27,18 @@ public class UserService : IUserService
     public void Add(User user)
     {
         _dataAccess.Create(user);
+
+        var log = new UserLog
+        {
+            UserId = user.Id,
+            Action = "Created user",
+            PreviousValue = string.Empty,
+            NewValue = $"User {user.Forename} {user.Surname} created.",
+            Timestamp = DateTime.UtcNow,
+            UserName =  $"{user.Forename} {user.Surname}"
+        };
+
+        _dataAccess.Create(log);
     }
 
     public void Delete(int id)
@@ -42,6 +55,24 @@ public class UserService : IUserService
         var user = _dataAccess.GetAll<User>().FirstOrDefault(u => u.Id == id);
         if (user != null)
         {
+            var logs = new List<UserLog>();
+
+            if (user.Forename != updatedUser.Forename)
+                logs.Add(new UserLog { UserId = id, Action = "Forename changed", PreviousValue = user.Forename, NewValue = updatedUser.Forename, UserName =  $"{user.Forename} {user.Surname}" });
+
+            if (user.Surname != updatedUser.Surname)
+                logs.Add(new UserLog { UserId = id, Action = "Surname changed", PreviousValue = user.Surname, NewValue = updatedUser.Surname, UserName =  $"{user.Forename} {user.Surname}" });
+
+            if (user.DateOfBirth != updatedUser.DateOfBirth)
+                logs.Add(new UserLog { UserId = id, Action = "Date of birth changed", PreviousValue = user.DateOfBirth, NewValue = updatedUser.DateOfBirth, UserName =  $"{user.Forename} {user.Surname}" });
+
+            if (user.Email != updatedUser.Email)
+                logs.Add(new UserLog { UserId = id, Action = "Email changed", PreviousValue = user.Email, NewValue = updatedUser.Email, UserName =  $"{user.Forename} {user.Surname}" });
+
+            if (user.IsActive != updatedUser.IsActive)
+                logs.Add(new UserLog { UserId = id, Action = "Active status changed", PreviousValue = user.IsActive.ToString(), NewValue = updatedUser.IsActive.ToString(), UserName =  $"{user.Forename} {user.Surname}" });
+
+
             user.Forename = updatedUser.Forename;
             user.Surname = updatedUser.Surname;
             user.DateOfBirth = updatedUser.DateOfBirth;
@@ -49,6 +80,11 @@ public class UserService : IUserService
             user.IsActive = updatedUser.IsActive;
 
             _dataAccess.Update(user);
+
+            foreach (var log in logs)
+            {
+                _dataAccess.Create(log);
+            }
         }
     }
 }

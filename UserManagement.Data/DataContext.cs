@@ -13,7 +13,8 @@ public class DataContext : DbContext, IDataContext
         => options.UseInMemoryDatabase("UserManagement.Data.DataContext");
 
     protected override void OnModelCreating(ModelBuilder model)
-        => model.Entity<User>().HasData(new[]
+    {
+        model.Entity<User>().HasData(new[]
         {
             new User { Id = 1, Forename = "Peter", Surname = "Loew", DateOfBirth = "01/01/2000", Email = "ploew@example.com", IsActive = true },
             new User { Id = 2, Forename = "Benjamin Franklin", Surname = "Gates", DateOfBirth = "02/01/2000", Email = "bfgates@example.com", IsActive = true },
@@ -28,7 +29,15 @@ public class DataContext : DbContext, IDataContext
             new User { Id = 11, Forename = "Robin", Surname = "Feld", DateOfBirth = "11/01/2000", Email = "rfeld@example.com", IsActive = true },
         });
 
+        model.Entity<UserLog>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(log => log.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+
     public DbSet<User>? Users { get; set; }
+    public DbSet<UserLog>? UserLogs { get; set; }
 
     public List<TEntity> GetAll<TEntity>() where TEntity : class
         => base.Set<TEntity>().ToList();

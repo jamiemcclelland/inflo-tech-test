@@ -165,6 +165,9 @@
             <label class="form-label">Active</label>
             <p id="viewIsActive" class="form-control-plaintext"></p>
         </div>
+        <a id="viewLogsLink" href="#" class="btn btn-outline-secondary w-100">
+            View Change Logs
+        </a>
     </div>
 </div>
 
@@ -190,6 +193,7 @@
             const dobEl = document.getElementById('viewDateOfBirth');
             const emailEl = document.getElementById('viewEmail');
             const isActiveEl = document.getElementById('viewIsActive');
+            const logsLink = document.getElementById('viewLogsLink');
 
             viewButtons.forEach(btn => {
                 btn.addEventListener('click', function () {
@@ -200,6 +204,7 @@
                     dobEl.textContent = user.DateOfBirth;
                     emailEl.textContent = user.Email;
                     isActiveEl.textContent = user.IsActive ? "Yes" : "No";
+                    logsLink.href = `/users/logs?userId=${user.Id}`;
                 });
             });
         });

@@ -1,0 +1,80 @@
+@model UserManagement.Web.Models.Users.UserLogsViewModel
+
+<h3>@Model.UserName</h3>
+
+<div class="log-filter">
+    <label for="actionFilter" class="form-label">Filter by Action:</label>
+    <select id="actionFilter" class="form-select" style="width: auto;">
+        <option value="">All</option>
+        <option value="Created user">Created user</option>
+        <option value="Forename changed">Forename changed</option>
+        <option value="Surname changed">Surname changed</option>
+        <option value="Email changed">Email changed</option>
+        <option value="Active status changed">Active status changed</option>
+    </select>
+</div>
+
+<table class="table table-striped" id="logsTable">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Action</th>
+            @if (Model.UserId == 0)
+            {
+                <th>User</th>
+            }
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model.Logs.OrderByDescending(l => l.Timestamp))
+        {
+            <tr data-bs-toggle="collapse" data-bs-target="#log-@log.LogId"
+                class="clickable" data-action="@log.Action">
+                <td>@log.Timestamp.ToLocalTime().ToString("g")</td>
+                <td>@log.Action</td>
+                @if (Model.UserId == 0)
+                {
+                    <td>@log.UserName</td>
+                }
+                <td><span class="text-primary">View Details</span></td>
+            </tr>
+
+            <tr id="log-@log.LogId" class="collapse">
+                <td colspan="4">
+                    @if (log.Action.Equals("Created user", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <em>@log.NewValue</em>
+                    }
+                    else
+                    {
+                        <strong>Previous Value:</strong> @log.PreviousValue <br />
+                        <strong>New Value:</strong> @log.NewValue
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .clickable {
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    document.getElementById('actionFilter').addEventListener('change', function () {
+        const selectedAction = this.value;
+        document.querySelectorAll('#logsTable tbody tr.clickable').forEach(row => {
+            const detailRow = document.querySelector(row.dataset.bsTarget);
+            if (!selectedAction || row.dataset.action === selectedAction) {
+                row.style.display = '';
+                if (detailRow) detailRow.style.display = '';
+            } else {
+                row.style.display = 'none';
+                if (detailRow) detailRow.style.display = 'none';
+            }
+        });
+    });
+</script>

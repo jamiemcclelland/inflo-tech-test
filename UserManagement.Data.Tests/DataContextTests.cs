@@ -1,5 +1,4 @@
 using System.Linq;
-using FluentAssertions;
 using UserManagement.Models;
 
 namespace UserManagement.Data.Tests;
@@ -43,6 +42,58 @@ public class DataContextTests
 
         // Assert: Verifies that the action of the method under test behaves as expected.
         result.Should().NotContain(s => s.Email == entity.Email);
+    }
+
+    [Fact]
+    public void GetAll_WhenNewLogAdded_MustIncludeLog()
+    {
+        var context = CreateContext();
+
+        var log = new UserLog
+        {
+            UserId = 1,
+            Action = "Test Action",
+            PreviousValue = "Old",
+            NewValue = "New"
+        };
+
+        context.Create(log);
+
+        var result = context.GetAll<UserLog>();
+
+        result.Should().Contain(l => l.Action == "Test Action")
+              .Which.Should().BeEquivalentTo(log, opts => opts.Excluding(l => l.LogId));
+    }
+
+    [Fact]
+    public void GetAll_WhenLogDeleted_MustNotIncludeDeletedLog()
+    {
+        var context = CreateContext();
+        var log = new UserLog
+        {
+            UserId = 1,
+            Action = "To be deleted",
+            PreviousValue = "Old",
+            NewValue = "New"
+        };
+        context.Create(log);
+
+        context.Delete(log);
+
+        var result = context.GetAll<UserLog>();
+
+        result.Should().NotContain(l => l.Action == "To be deleted");
+    }
+
+    [Fact]
+    public void SeededUsers_ShouldBePresent()
+    {
+        var context = CreateContext();
+        var users = context.GetAll<User>();
+
+        users.Should().NotBeNullOrEmpty();
+        users.Should().Contain(u => u.Forename == "Peter");
+        users.Should().HaveCountGreaterThan(5);
     }
 
     private DataContext CreateContext() => new();

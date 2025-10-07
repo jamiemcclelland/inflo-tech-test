@@ -31,3 +31,7 @@ body {
     padding: 5px;
     border-radius: 10px;
 }
+
+.log-filter {
+    float: right;
+}

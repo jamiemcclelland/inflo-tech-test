@@ -214,21 +214,21 @@ var assemblies = [
     "name": "UserManagement.Data",
     "classes": [
       { "name": "Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions", "rp": "UserManagement.Data_ServiceCollectionExtensions.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 9, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "UserManagement.Data.DataContext", "rp": "UserManagement.Data_DataContext.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 53, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "UserManagement.Data.DataContext", "rp": "UserManagement.Data_DataContext.html", "cl": 0, "ucl": 30, "cal": 30, "tl": 62, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "UserManagement.Models.User", "rp": "UserManagement.Data_User.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 15, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "UserManagement.Services",
     "classes": [
-      { "name": "Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions", "rp": "UserManagement.Services_ServiceCollectionExtensions.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 10, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "UserManagement.Services.Domain.Implementations.UserService", "rp": "UserManagement.Services_UserService.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 54, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions", "rp": "UserManagement.Services_ServiceCollectionExtensions.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 12, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "UserManagement.Services.Domain.Implementations.UserService", "rp": "UserManagement.Services_UserService.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 90, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "UserManagement.Web",
     "classes": [
       { "name": "AspNetCoreGeneratedDocument.Views__ViewStart", "rp": "UserManagement.Web_Views__ViewStart.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 3, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "AspNetCoreGeneratedDocument.Views_Home_Index", "rp": "UserManagement.Web_Views_Home_Index.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 12, "cb": 0, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "AspNetCoreGeneratedDocument.Views_Users_List", "rp": "UserManagement.Web_Views_Users_List.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 308, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "AspNetCoreGeneratedDocument.Views_Users_List", "rp": "UserManagement.Web_Views_Users_List.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 313, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Program", "rp": "UserManagement.Web_Program.html", "cl": 0, "ucl": 15, "cal": 15, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "UserManagement.Web.Models.Users.UserListItemViewModel", "rp": "UserManagement.Web_UserListItemViewModel.html", "cl": 5, "ucl": 0, "cal": 5, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "UserManagement.Web.Models.Users.UserListViewModel", "rp": "UserManagement.Web_UserListViewModel.html", "cl": 1, "ucl": 0, "cal": 1, "tl": 16, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
