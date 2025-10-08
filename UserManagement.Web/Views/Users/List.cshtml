@@ -218,34 +218,40 @@
             const deleteUserIdField = document.getElementById('deleteUserId');
 
             confirmInput.addEventListener('input', function () {
-            confirmBtn.disabled = confirmInput.value.toLowerCase() !== 'delete';
+                confirmBtn.disabled = confirmInput.value.toLowerCase() !== 'delete';
             });
 
             document.querySelectorAll('.delete-user-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const userId = this.dataset.userId;
-                deleteUserIdField.value = userId;
-            });
+                btn.addEventListener('click', function () {
+                    const userId = this.dataset.userId;
+                    deleteUserIdField.value = userId;
+                });
             });
 
             deleteForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
+                e.preventDefault();
 
-            const id = deleteUserIdField.value;
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const id = deleteUserIdField.value;
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-            const response = await fetch(`/users/delete/${id}`, {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': token
+                const response = await fetch(`/users/delete/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token
+                    }
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Error deleting user.');
                 }
             });
 
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert('Error deleting user.');
-            }
+            deleteModal.addEventListener('hidden.bs.modal', function () {
+                confirmInput.value = '';
+                confirmBtn.disabled = true;
+                deleteUserIdField.value = '';
             });
         });
     </script>

@@ -47,6 +47,18 @@ public class UserService : IUserService
         if (user != null)
         {
             _dataAccess.Delete(user);
+
+            var log = new UserLog
+            {
+                UserId = user.Id,
+                Action = "Deleted user",
+                PreviousValue = $"User {user.Forename} {user.Surname} ({user.Email}) deleted.",
+                NewValue = string.Empty,
+                Timestamp = DateTime.UtcNow,
+                UserName = $"{user.Forename} {user.Surname}"
+            };
+
+            _dataAccess.Create(log);
         }
     }
 
@@ -58,19 +70,19 @@ public class UserService : IUserService
             var logs = new List<UserLog>();
 
             if (user.Forename != updatedUser.Forename)
-                logs.Add(new UserLog { UserId = id, Action = "Forename changed", PreviousValue = user.Forename, NewValue = updatedUser.Forename, UserName =  $"{user.Forename} {user.Surname}" });
+                logs.Add(new UserLog { UserId = id, Action = "Forename changed", PreviousValue = user.Forename, NewValue = updatedUser.Forename, UserName =  $"{updatedUser.Forename} {updatedUser.Surname}" });
 
             if (user.Surname != updatedUser.Surname)
-                logs.Add(new UserLog { UserId = id, Action = "Surname changed", PreviousValue = user.Surname, NewValue = updatedUser.Surname, UserName =  $"{user.Forename} {user.Surname}" });
+                logs.Add(new UserLog { UserId = id, Action = "Surname changed", PreviousValue = user.Surname, NewValue = updatedUser.Surname, UserName =  $"{updatedUser.Forename} {updatedUser.Surname}" });
 
             if (user.DateOfBirth != updatedUser.DateOfBirth)
-                logs.Add(new UserLog { UserId = id, Action = "Date of birth changed", PreviousValue = user.DateOfBirth, NewValue = updatedUser.DateOfBirth, UserName =  $"{user.Forename} {user.Surname}" });
+                logs.Add(new UserLog { UserId = id, Action = "Date of birth changed", PreviousValue = user.DateOfBirth, NewValue = updatedUser.DateOfBirth, UserName =  $"{updatedUser.Forename} {updatedUser.Surname}" });
 
             if (user.Email != updatedUser.Email)
-                logs.Add(new UserLog { UserId = id, Action = "Email changed", PreviousValue = user.Email, NewValue = updatedUser.Email, UserName =  $"{user.Forename} {user.Surname}" });
+                logs.Add(new UserLog { UserId = id, Action = "Email changed", PreviousValue = user.Email, NewValue = updatedUser.Email, UserName =  $"{updatedUser.Forename} {updatedUser.Surname}" });
 
             if (user.IsActive != updatedUser.IsActive)
-                logs.Add(new UserLog { UserId = id, Action = "Active status changed", PreviousValue = user.IsActive.ToString(), NewValue = updatedUser.IsActive.ToString(), UserName =  $"{user.Forename} {user.Surname}" });
+                logs.Add(new UserLog { UserId = id, Action = "Active status changed", PreviousValue = user.IsActive.ToString(), NewValue = updatedUser.IsActive.ToString(), UserName =  $"{updatedUser.Forename} {updatedUser.Surname}" });
 
 
             user.Forename = updatedUser.Forename;

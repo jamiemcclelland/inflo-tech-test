@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
@@ -241,6 +242,57 @@ public class UserControllerTests
             .Returns(users);
 
         return users;
+    }
+
+    [Fact]
+    public void List_WhenUsersReturned_ShouldBeOrderedByIdAscending()
+    {
+        // Arrange
+        var controller = CreateController();
+        var unorderedUsers = new[]
+        {
+            new User { Id = 5, Forename = "Eve" },
+            new User { Id = 2, Forename = "Bob" },
+            new User { Id = 9, Forename = "Zoe" },
+            new User { Id = 1, Forename = "Alice" }
+        };
+
+        _userService.Setup(s => s.GetAll()).Returns(unorderedUsers);
+
+        // Act
+        var result = controller.List();
+
+        // Assert
+        var viewResult = result as ViewResult;
+        viewResult.Should().NotBeNull();
+
+        var model = viewResult!.Model.Should().BeOfType<UserPageViewModel>().Subject;
+        model.Users.Select(u => u.Id).Should().BeInAscendingOrder();
+    }
+
+    [Fact]
+    public void List_WhenFilteredByActive_ShouldStillBeOrderedByIdAscending()
+    {
+        // Arrange
+        var controller = CreateController();
+        var unorderedActiveUsers = new[]
+        {
+            new User { Id = 3, Forename = "Charlie", IsActive = true },
+            new User { Id = 1, Forename = "Alice", IsActive = true },
+            new User { Id = 2, Forename = "Bob", IsActive = true }
+        };
+
+        _userService.Setup(s => s.FilterByActive(true)).Returns(unorderedActiveUsers);
+
+        // Act
+        var result = controller.List(true);
+
+        // Assert
+        var viewResult = result as ViewResult;
+        viewResult.Should().NotBeNull();
+
+        var model = viewResult!.Model.Should().BeOfType<UserPageViewModel>().Subject;
+        model.Users.Select(u => u.Id).Should().BeInAscendingOrder();
     }
 
     private readonly Mock<IUserService> _userService = new();

@@ -79,11 +79,17 @@ public class UserServiceTests
     }
 
     [Fact]
-    public void Delete_WhenUserExists_ShouldCallDeleteOnce()
+    public void Delete_WhenUserExists_ShouldCallDeleteAndCreateDeleteLog()
     {
         // Arrange
         var service = CreateService();
-        var user = new User { Id = 1, Forename = "Test", Surname = "User" };
+        var user = new User
+        {
+            Id = 1,
+            Forename = "Test",
+            Surname = "User",
+            Email = "test@example.com"
+        };
         var users = new List<User> { user };
 
         _dataContext.Setup(s => s.GetAll<User>()).Returns(users);
@@ -93,6 +99,14 @@ public class UserServiceTests
 
         // Assert
         _dataContext.Verify(s => s.Delete(user), Times.Once);
+
+        _dataContext.Verify(s => s.Create(It.Is<UserLog>(log =>
+        log.UserId == user.Id &&
+        log.Action == "Deleted user" &&
+        log.PreviousValue.Contains("Test User") &&
+        log.NewValue == string.Empty &&
+        log.UserName == "Test User"
+    )), Times.Once);
     }
 
     [Fact]
@@ -265,13 +279,12 @@ public class UserServiceTests
         // Assert
         _dataContext.Verify(d => d.Update(existingUser), Times.Once);
 
-        // 5 potential change logs expected (one per property)
         _dataContext.Verify(d => d.Create(It.Is<UserLog>(l =>
             l.UserId == existingUser.Id &&
             l.Action == "Forename changed" &&
             l.PreviousValue == "OldFirst" &&
             l.NewValue == "NewFirst" &&
-            l.UserName == "OldFirst OldLast"
+            l.UserName == "NewFirst NewLast"
         )), Times.Once);
 
         _dataContext.Verify(d => d.Create(It.Is<UserLog>(l =>
@@ -281,7 +294,6 @@ public class UserServiceTests
             l.NewValue == "False"
         )), Times.Once);
 
-        // Optional: ensure total logs were created five times
         _dataContext.Verify(d => d.Create(It.IsAny<UserLog>()), Times.Exactly(5));
     }
 
@@ -317,6 +329,38 @@ public class UserServiceTests
         // Assert
         _dataContext.Verify(d => d.Update(existingUser), Times.Once);
         _dataContext.Verify(d => d.Create(It.IsAny<UserLog>()), Times.Never);
+    }
+
+    [Fact]
+    public void Delete_WhenUserExists_ShouldCreateDeletedUserLog()
+    {
+        // Arrange
+        var service = CreateService();
+        var user = new User
+        {
+            Id = 5,
+            Forename = "Tony",
+            Surname = "Stark",
+            Email = "ironman@avengers.com"
+        };
+        var users = new List<User> { user };
+
+        _dataContext.Setup(s => s.GetAll<User>()).Returns(users);
+
+        // Act
+        service.Delete((int)user.Id);
+
+        // Assert: ensures delete is called
+        _dataContext.Verify(s => s.Delete(user), Times.Once);
+
+        // Assert: ensures a deletion log is created
+        _dataContext.Verify(s => s.Create(It.Is<UserLog>(log =>
+            log.UserId == user.Id &&
+            log.Action == "Deleted user" &&
+            log.PreviousValue.Contains("Tony Stark") &&
+            log.NewValue == string.Empty &&
+            log.UserName == "Tony Stark"
+        )), Times.Once);
     }
 
     private List<User> SetupUsers(string forename = "Johnny", string surname = "User", string dateOfBirth = "01/01/2000", string email = "juser@example.com", bool isActive = true)

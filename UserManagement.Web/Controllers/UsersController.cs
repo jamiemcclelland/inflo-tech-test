@@ -26,6 +26,8 @@ public class UsersController : Controller
             users = _userService.GetAll();
         }
 
+        users = users.OrderBy(u => u.Id);
+
         var model = new UserPageViewModel
         {
             Users = users.Select(MapUserModels).ToList()
